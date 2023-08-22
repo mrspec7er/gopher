@@ -6,6 +6,9 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
+
+	"github.com/leekchan/accounting"
 )
 
 type SalaryType struct {
@@ -26,7 +29,9 @@ func main()  {
 
 	defer file.Close()
 
-	decodedFile := csv.NewReader(file)
+	decodedFile := csv.NewReader(file);
+	totalSalary := 0;
+	datacount := 0
 
 	for {
 		records, err := decodedFile.Read()
@@ -39,18 +44,28 @@ func main()  {
 			log.Fatal(err)
 		}		
 
-		filteredRecord := handleFilterRecord(records)
-		
+		filteredRecord := handleFilterRecord(records);
+		salary, err := strconv.Atoi(records[6]);
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// fmt.Println(salary)
+		totalSalary += salary;
+		datacount += 1
 		
 		data = append(data, filteredRecord)
 
 	}
 	
-	for _, eachData := range data {
-		fmt.Printf("%v\n", eachData)
-	}
+	// for _, eachData := range data {
+	// 	fmt.Printf("%v\n", eachData)
+	// }
 
-	fmt.Println(data[0])
+	ac := accounting.Accounting{Symbol: "Rp. ", Precision: 2}
+
+	fmt.Println("AVERAGE: ", totalSalary/datacount)
+	fmt.Println("AVARAGE in IDR: ", ac.FormatMoney(totalSalary/datacount * 15000))
+	fmt.Println("TOTAL: ", totalSalary);
 }
 
 func handleFilterRecord(records []string) SalaryType  {
